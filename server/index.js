@@ -24,3 +24,7 @@ pool.connect()
 const taskRoutes = require("./routes/taskRoutes");
 
 app.use("/api/tasks", taskRoutes);
+
+const pomodoroRoutes = require("./routes/pomodoroRoutes");
+
+app.use("/api/pomodoro", pomodoroRoutes);

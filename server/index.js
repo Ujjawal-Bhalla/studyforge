@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
@@ -20,3 +21,6 @@ const pool = require("./config/db");
 pool.connect()
   .then(() => console.log("DB connected"))
   .catch(err => console.error(err));
+const taskRoutes = require("./routes/taskRoutes");
+
+app.use("/api/tasks", taskRoutes);

@@ -7,3 +7,10 @@ router.post("/signup", signup);
 router.post("/login", login);
 
 module.exports = router;
+const authMiddleware = require("../middleware/authMiddleware");
+router.get("/protected", authMiddleware, (req, res) => {
+  res.json({
+    message: "Protected route accessed successfully",
+    user: req.user,
+  });
+});

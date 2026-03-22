@@ -29,7 +29,3 @@ pool.connect()
 app.listen(5000, () => {
   console.log("Server running on port 5000");
 });
-
-const journalRoutes = require("./routes/journalRoutes");
-
-app.use("/api/journal", journalRoutes);

@@ -20,7 +20,7 @@ export default function JournalItem({ entry, onUpdate, onDelete }) {
 
   const handleDelete = async () => {
     try {
-      await api.del(`/journal/${entry.id}`);
+      await api.delete(`/journal/${entry.id}`);
       onDelete(entry.id);
     } catch (err) {
       console.error(err);

@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { api } from "@/lib/apiClient";
 import { useEffect } from "react";
+import PomodoroHistory from "@/components/pomodoro/PomodoroHistory";
 
 export default function PomodoroPage() {
   const [session, setSession] = useState(null);
   const [time, setTime] = useState(0);
+  const [refreshHistory, setRefreshHistory] = useState(false);
   useEffect(() => {
   let interval;
 
@@ -55,16 +57,19 @@ export default function PomodoroPage() {
   fetchActiveSession();
 }, []);
   const handleEnd = async () => {
-    if (!session) return;
+  if (!session) return;
 
-    try {
-      await api.put(`/pomodoro/end/${session.id}`);
+  try {
+    await api.put(`/pomodoro/end/${session.id}`);
 
-      setSession(null);
-    } catch (err) {
-      alert(err.message);
-    }
-  };
+    setSession(null);
+
+    // trigger refresh
+    setRefreshHistory((prev) => !prev);
+  } catch (err) {
+    alert(err.message);
+  }
+};
   
   const formatTime = (seconds) => {
   const mins = Math.floor(seconds / 60);
@@ -93,6 +98,7 @@ export default function PomodoroPage() {
           Stop
         </button>
       )}
+    <PomodoroHistory refreshTrigger={refreshHistory} />
     </div>
   );
 }

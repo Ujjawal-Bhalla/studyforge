@@ -22,10 +22,13 @@ const endSession = async (sessionId, userId) => {
   return result.rows[0];
 };
 
-// Get all sessions
+// Get all inactive sessions
 const getSessions = async (userId) => {
   const result = await db.query(
-    "SELECT * FROM pomodoro_sessions WHERE user_id = $1 ORDER BY created_at DESC",
+    `SELECT id, start_time, end_time, duration
+     FROM pomodoro_sessions
+     WHERE user_id = $1 AND end_time IS NOT NULL
+     ORDER BY start_time DESC`,
     [userId]
   );
   return result.rows;

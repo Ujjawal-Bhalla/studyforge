@@ -18,7 +18,24 @@ const getEntries = async (userId) => {
   return result.rows;
 };
 
+//Update entry
+const updateEntry = async (id, userId, content) => {
+  const result = await db.query(
+    "UPDATE journal_entries SET content = $1 WHERE id = $2 AND user_id = $3 RETURNING *",
+    [content, id, userId]
+  );
+  return result.rows[0];
+};
+//Delete entry
+const deleteEntry = async (id, userId) => {
+  await db.query(
+    "DELETE FROM journal_entries WHERE id = $1 AND user_id = $2",
+    [id, userId]
+  );
+}
 module.exports = {
   createEntry,
   getEntries,
+  updateEntry,
+  deleteEntry
 };

@@ -31,7 +31,40 @@ const getEntries = async (req, res) => {
   }
 };
 
+// Update entry
+const updateJournal = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { content } = req.body;
+
+    const updated = await journalModel.updateEntry(id, userId, content);
+
+    res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to update entry" });
+  }
+}; 
+
+// Delete entry
+const deleteJournal = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    await journalModel.deleteEntry(id, userId);
+
+    res.json({ message: "Entry deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to delete entry" });
+  }
+}; 
+
 module.exports = {
   createEntry,
   getEntries,
+  updateJournal,
+  deleteJournal
 };

@@ -9,7 +9,7 @@ export default function SignupPage() {
     email: "",
     password: "",
   });
-
+  const [name, setName] = useState("");
   const router = useRouter();
 
   const handleChange = (e) => {
@@ -33,7 +33,13 @@ export default function SignupPage() {
     <div className="h-screen flex items-center justify-center">
       <div className="bg-gray-800 p-6 rounded-lg w-80">
         <h1 className="text-xl font-bold mb-4 text-white">Sign Up</h1>
-
+        <input
+        type="text"
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        className="w-full mb-2 p-2 rounded bg-gray-700 text-white"
+        />
         <input
           name="email"
           placeholder="Email"

@@ -1,22 +1,26 @@
+
 //SIGNUP
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { createUser, findUserByEmail } = require("../models/userModel");
 
 exports.signup = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, name } = req.body;
 
-    // check if user exists
+    if (!name||!email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const existingUser = await findUserByEmail(email);
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // create user
-    const user = await createUser(email, hashedPassword);
+    // 👇 pass name here
+    const user = await createUser(email, hashedPassword, name);
 
     res.status(201).json({ message: "User created", user });
   } catch (err) {
@@ -24,8 +28,6 @@ exports.signup = async (req, res) => {
   }
 };
 //LOGIN
-const jwt = require("jsonwebtoken");
-
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -40,13 +42,23 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    // ✅ Step 3: include name in JWT
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { id: user.id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    res.json({ token });
+    // ✅ Step 4: return user also
+    res.json({
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      },
+    });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

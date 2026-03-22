@@ -3,43 +3,29 @@
 import { useState } from "react";
 import API_URL from "@/lib/api";
 import { useRouter } from "next/navigation";
-
+import { api } from "@/lib/apiClient";
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    const data = await api.post("/auth/login", {
+      email,
+      password,
+    });
 
-      const data = await res.json();
+    localStorage.setItem("token", data.token);
 
-      if (!res.ok) {
-        alert(data.message);
-        return;
-      }
+    router.push("/dashboard");
 
-      // ✅ store token
-      localStorage.setItem("token", data.token);
-
-      // ✅ redirect
-      router.push("/dashboard");
-    }
-      catch (err) {
-      console.error(err);
-      alert("Something went wrong");
-    }
-  };
-
+  } catch (err) {
+    alert(err.message);
+  }
+};
   return (
     <div className="h-screen flex items-center justify-center">
       <form

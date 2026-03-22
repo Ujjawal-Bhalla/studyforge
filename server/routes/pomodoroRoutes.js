@@ -6,12 +6,13 @@ const {
   startSession,
   endSession,
   getSessions,
-  getTotalFocusTime
+  getTotalFocusTime,
+  resetPomodoro,
 } = require("../controllers/pomodoroController");
 
 router.post("/start", authMiddleware, startSession);
 router.put("/end/:id", authMiddleware, endSession);
 router.get("/", authMiddleware, getSessions);
 router.get("/total", authMiddleware, getTotalFocusTime);
-
+router.delete("/reset", authMiddleware, resetPomodoro);
 module.exports = router;

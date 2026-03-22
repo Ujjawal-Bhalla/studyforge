@@ -2,7 +2,12 @@
 //SIGNUP
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { createUser, findUserByEmail } = require("../models/userModel");
+const {
+  createUser,
+  findUserByEmail,
+  updateUserName,
+  deleteUser
+} = require("../models/userModel");
 
 exports.signup = async (req, res) => {
   try {
@@ -63,4 +68,41 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+//UPDATE NAME
+exports.updateName = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: "Name required" });
+    }
+
+    const updatedUser = await updateUserName(userId, name);
+
+    res.json({
+      message: "Name updated",
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+//Delete account
+exports.deleteAccount = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    await deleteUser(userId);
+
+    res.json({ message: "Account deleted" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
 

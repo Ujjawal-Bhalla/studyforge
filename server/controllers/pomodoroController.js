@@ -64,10 +64,20 @@ const getTotalFocusTime = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-
+//Reset Pomodoro sessions
+const resetPomodoro = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    await pomodoroModel.resetPomodoro(userId);
+    res.json({ message: "Pomodoro history cleared" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 module.exports = {
   startSession,
   endSession,
   getSessions,
-  getTotalFocusTime
+  getTotalFocusTime,
+  resetPomodoro
 };

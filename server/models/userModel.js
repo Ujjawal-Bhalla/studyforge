@@ -17,8 +17,25 @@ const findUserByEmail = async (email) => {
   );
   return result.rows[0];
 };
+//Update user name
+const updateUserName = async (userId, name) => {
+  const result = await pool.query(
+    "UPDATE users SET name = $1 WHERE id = $2 RETURNING *",
+    [name, userId]
+  );
+  return result.rows[0];
+};
 
+//Delete user
+const deleteUser = async (userId) => {
+  await pool.query(
+    "DELETE FROM users WHERE id = $1",
+    [userId]
+  );
+};
 module.exports = {
   createUser,
   findUserByEmail,
+  updateUserName,
+  deleteUser
 };

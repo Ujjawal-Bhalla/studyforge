@@ -17,17 +17,24 @@ export default function SignupPage() {
   };
 
   const handleSignup = async () => {
-    try {
-      const data = await api.post("/auth/signup", form);
+  try {
+    // 1. Signup
+    await api.post("/auth/signup", {
+      ...form,
+      name,
+    });
 
-      // auto login
-      localStorage.setItem("token", data.token);
+    // 2. Login properly
+    const res = await api.post("/auth/login", form);
 
-      router.push("/dashboard");
-    } catch (err) {
-      alert(err.message);
-    }
-  };
+    localStorage.setItem("token", res.token);
+
+    router.push("/dashboard");
+
+  } catch (err) {
+    alert(err.message);
+  }
+};
 
   return (
     <div className="h-screen flex items-center justify-center">

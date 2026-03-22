@@ -51,11 +51,19 @@ const getTotalFocusTime = async (userId) => {
   );
   return result.rows[0];
 };
+// Reset Pomodoro sessions
+const resetPomodoro = async (userId) => {
+  await db.query(
+    "DELETE FROM pomodoro_sessions WHERE user_id = $1",
+    [userId]
+   );
+};
 module.exports = {
   startSession,
   endSession,
   getSessions,
   getActiveSession,
-  getTotalFocusTime
+  getTotalFocusTime,
+  resetPomodoro
 };
 

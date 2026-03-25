@@ -74,7 +74,7 @@ const handleDeleteTask = async (taskId) => {
   const token = getToken();
 
   try {
-    await api.del(`/tasks/${taskId}`);
+    await api.delete(`/tasks/${taskId}`);
     // ✅ update UI
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
   } catch (err) {

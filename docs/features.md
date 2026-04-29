@@ -15,13 +15,18 @@
 - Toggle completion status
 - Delete task
 
-## Pomodoro
+## Study Timer
 
-- Start a focus session
-- Stop an active session and store duration
-- View session history
-- View total focus time
-- Reset all pomodoro history
+- Switch between Pomodoro, Custom Timer, and Stopwatch modes
+- Start preset-based focus, short break, and long break Pomodoro timers
+- Set a custom countdown with hours, minutes, and seconds
+- Start, pause, resume, stop, and reset a stopwatch session
+- Recover active or paused timer state after refresh
+- Save completed Pomodoro, custom-timer, and stopwatch sessions
+- View unified timer history across all saved timer modes
+- View total tracked time across all completed sessions
+- Track Pomodoro focus streak toward long-break recommendations
+- Reset or discard the current timer session
 
 ## Journal
 
@@ -29,4 +34,3 @@
 - List entries ordered by newest
 - Edit existing entry
 - Delete entry
-

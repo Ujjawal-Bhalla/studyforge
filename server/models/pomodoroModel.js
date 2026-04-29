@@ -1,69 +1,173 @@
 const db = require("../config/db");
 
-// Start session
-const startSession = async (userId) => {
+const createSession = async (userId, modeType, phaseType, presetKey, targetDuration) => {
   const result = await db.query(
-    "INSERT INTO pomodoro_sessions (user_id, start_time) VALUES ($1, NOW()) RETURNING *",
-    [userId]
+    `INSERT INTO pomodoro_sessions (
+      user_id,
+      mode_type,
+      phase_type,
+      preset_key,
+      target_duration,
+      status,
+      start_time,
+      duration,
+      remaining_seconds,
+      end_time,
+      completed_at
+    )
+    VALUES ($1, $2, $3, $4, $5, 'active', NOW(), 0, $6, NULL, NULL)
+    RETURNING *`,
+    [
+      userId,
+      modeType,
+      phaseType,
+      presetKey,
+      targetDuration,
+      modeType === "stopwatch" ? null : targetDuration,
+    ]
   );
+
   return result.rows[0];
 };
 
-// End session
-const endSession = async (sessionId, userId) => {
+const getCurrentSession = async (userId) => {
+  const result = await db.query(
+    `SELECT *
+     FROM pomodoro_sessions
+     WHERE user_id = $1 AND status IN ('active', 'paused')
+     ORDER BY id DESC
+     LIMIT 1`,
+    [userId]
+  );
+
+  return result.rows[0] || null;
+};
+
+const pauseSession = async (sessionId, userId, remainingSeconds, duration) => {
   const result = await db.query(
     `UPDATE pomodoro_sessions
-     SET end_time = NOW(),
-         duration = EXTRACT(EPOCH FROM (NOW() - start_time))
-     WHERE id = $1 AND user_id = $2 AND end_time IS NULL
+     SET status = 'paused',
+         remaining_seconds = $1,
+         duration = $2,
+         end_time = NOW()
+     WHERE id = $3 AND user_id = $4 AND status = 'active'
+     RETURNING *`,
+    [remainingSeconds, duration, sessionId, userId]
+  );
+
+  return result.rows[0] || null;
+};
+
+const resumeSession = async (sessionId, userId) => {
+  const result = await db.query(
+    `UPDATE pomodoro_sessions
+     SET status = 'active',
+         start_time = NOW(),
+         end_time = NULL
+     WHERE id = $1 AND user_id = $2 AND status = 'paused'
      RETURNING *`,
     [sessionId, userId]
   );
-  return result.rows[0];
+
+  return result.rows[0] || null;
 };
 
-// Get all inactive sessions
-const getSessions = async (userId) => {
+const endSession = async (sessionId, userId, outcome, duration, completedAt) => {
+  const status = outcome === "completed" ? "completed" : "cancelled";
+
   const result = await db.query(
-    `SELECT id, start_time, end_time, duration
+    `UPDATE pomodoro_sessions
+     SET status = $1,
+         duration = $2,
+         end_time = NOW(),
+         completed_at = $3,
+         remaining_seconds = NULL
+     WHERE id = $4 AND user_id = $5 AND status IN ('active', 'paused')
+     RETURNING *`,
+    [status, duration, completedAt, sessionId, userId]
+  );
+
+  return result.rows[0] || null;
+};
+
+const getCompletedSessions = async (userId) => {
+  const result = await db.query(
+    `SELECT id, mode_type, phase_type, preset_key, target_duration, duration, start_time, end_time, completed_at
      FROM pomodoro_sessions
-     WHERE user_id = $1 AND end_time IS NOT NULL
-     ORDER BY start_time DESC`,
+     WHERE user_id = $1
+       AND status = 'completed'
+     ORDER BY completed_at DESC NULLS LAST, id DESC`,
     [userId]
   );
+
   return result.rows;
 };
 
-// Check active session
-const getActiveSession = async (userId) => {
+const getTotalTrackedTime = async (userId) => {
   const result = await db.query(
-    "SELECT * FROM pomodoro_sessions WHERE user_id = $1 AND end_time IS NULL",
+    `SELECT COALESCE(SUM(duration), 0) AS total
+     FROM pomodoro_sessions
+     WHERE user_id = $1
+       AND status = 'completed'`,
     [userId]
   );
-  return result.rows[0];
+
+  return Number(result.rows[0]?.total || 0);
 };
 
-// Total focus time
-const getTotalFocusTime = async (userId) => {
+const getLastCompletedPomodoroPhase = async (userId) => {
   const result = await db.query(
-    "SELECT SUM(duration) AS total FROM pomodoro_sessions WHERE user_id = $1",
+    `SELECT *
+     FROM pomodoro_sessions
+     WHERE user_id = $1
+       AND status = 'completed'
+       AND mode_type = 'pomodoro'
+     ORDER BY completed_at DESC NULLS LAST, id DESC
+     LIMIT 1`,
     [userId]
   );
-  return result.rows[0];
+
+  return result.rows[0] || null;
 };
-// Reset Pomodoro sessions
+
+const getFocusStreak = async (userId) => {
+  const result = await db.query(
+    `WITH last_long_break AS (
+       SELECT completed_at
+       FROM pomodoro_sessions
+       WHERE user_id = $1
+         AND status = 'completed'
+         AND mode_type = 'pomodoro'
+         AND phase_type = 'long_break'
+       ORDER BY completed_at DESC NULLS LAST, id DESC
+       LIMIT 1
+     )
+     SELECT COUNT(*)::int AS streak
+     FROM pomodoro_sessions
+     WHERE user_id = $1
+       AND status = 'completed'
+       AND mode_type = 'pomodoro'
+       AND phase_type = 'focus'
+       AND completed_at > COALESCE((SELECT completed_at FROM last_long_break), TO_TIMESTAMP(0))`,
+    [userId]
+  );
+
+  return result.rows[0]?.streak || 0;
+};
+
 const resetPomodoro = async (userId) => {
-  await db.query(
-    "DELETE FROM pomodoro_sessions WHERE user_id = $1",
-    [userId]
-   );
-};
-module.exports = {
-  startSession,
-  endSession,
-  getSessions,
-  getActiveSession,
-  getTotalFocusTime,
-  resetPomodoro
+  await db.query("DELETE FROM pomodoro_sessions WHERE user_id = $1", [userId]);
 };
 
+module.exports = {
+  createSession,
+  getCurrentSession,
+  pauseSession,
+  resumeSession,
+  endSession,
+  getCompletedSessions,
+  getTotalTrackedTime,
+  getLastCompletedPomodoroPhase,
+  getFocusStreak,
+  resetPomodoro,
+};

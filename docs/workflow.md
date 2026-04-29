@@ -20,7 +20,6 @@
 ## Domain Flows
 
 - **Tasks:** create -> fetch/update/delete -> UI state update.
-- **Pomodoro:** start session -> timer runs on UI -> end session -> history refresh.
+- **Study Timer:** choose Pomodoro, Custom Timer, or Stopwatch -> start -> pause/resume/stop/reset -> history and total tracked time update.
 - **Journal:** create/update/delete entry -> local list state synchronized with API response.
 - **Settings:** update name, reset pomodoro data, or delete account.
-

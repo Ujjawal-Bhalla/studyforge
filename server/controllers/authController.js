@@ -24,7 +24,6 @@ exports.signup = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 👇 pass name here
     const user = await createUser(email, hashedPassword, name);
 
     res.status(201).json({ message: "User created", user });
@@ -47,14 +46,12 @@ exports.login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    // ✅ Step 3: include name in JWT
     const token = jwt.sign(
       { id: user.id, email: user.email, name: user.name },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // ✅ Step 4: return user also
     res.json({
       token,
       user: {

@@ -23,9 +23,16 @@ The backend uses PostgreSQL. The schema below is inferred from SQL used in `serv
 
 - `id` (primary key)
 - `user_id` (foreign key -> `users.id`)
+- `mode_type` (`pomodoro`, `custom_timer`, `stopwatch`)
+- `phase_type` (`focus`, `short_break`, `long_break`, `custom`, `stopwatch`)
+- `preset_key` (`classic`, `deep`, `extended`, nullable for non-Pomodoro modes)
 - `start_time` (timestamp)
 - `end_time` (timestamp, nullable for active session)
-- `duration` (seconds, numeric/integer)
+- `target_duration` (seconds for countdown modes, nullable for stopwatch)
+- `duration` (elapsed seconds)
+- `status` (`active`, `paused`, `completed`, `cancelled`)
+- `remaining_seconds` (remaining countdown time when paused, nullable for stopwatch)
+- `completed_at` (timestamp for completed phases)
 
 ### `journal_entries`
 
@@ -55,9 +62,16 @@ CREATE TABLE tasks (
 CREATE TABLE pomodoro_sessions (
   id SERIAL PRIMARY KEY,
   user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  mode_type TEXT NOT NULL DEFAULT 'pomodoro',
+  phase_type TEXT NOT NULL DEFAULT 'focus',
+  preset_key TEXT DEFAULT 'classic',
   start_time TIMESTAMP NOT NULL DEFAULT NOW(),
   end_time TIMESTAMP NULL,
-  duration INTEGER
+  target_duration INTEGER,
+  duration INTEGER,
+  status TEXT NOT NULL DEFAULT 'active',
+  remaining_seconds INTEGER,
+  completed_at TIMESTAMP NULL
 );
 
 CREATE TABLE journal_entries (
@@ -67,4 +81,3 @@ CREATE TABLE journal_entries (
   created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 ```
-

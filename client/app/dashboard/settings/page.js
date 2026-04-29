@@ -15,7 +15,7 @@ export default function SettingsPage() {
     if (!token) {
       router.push("/login");
     }
-  }, []);
+  }, [router]);
 
   const handleChangeName = async () => {
     if (!newName.trim()) {

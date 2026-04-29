@@ -32,9 +32,20 @@ Authorization: Bearer <jwt>
 ## Pomodoro (`/pomodoro`)
 
 - `POST /pomodoro/start` (protected)
+  - body examples:
+    - `{ "modeType": "pomodoro", "presetKey": "classic", "phaseType": "focus" }`
+    - `{ "modeType": "custom_timer", "phaseType": "custom", "targetDuration": 1500 }`
+    - `{ "modeType": "stopwatch", "phaseType": "stopwatch" }`
+- `GET /pomodoro/active` (protected)
+  - returns the active or paused session, focus streak, suggested next phase, and total tracked time
+- `PUT /pomodoro/pause/:id` (protected)
+- `PUT /pomodoro/resume/:id` (protected)
 - `PUT /pomodoro/end/:id` (protected)
+  - body: `{ "outcome": "completed" | "cancelled" }`
 - `GET /pomodoro` (protected)
+  - returns completed Pomodoro, Custom Timer, and Stopwatch sessions
 - `GET /pomodoro/total` (protected)
+  - returns total completed tracked time
 - `DELETE /pomodoro/reset` (protected)
 
 ## Journal (`/journal`)
@@ -45,4 +56,3 @@ Authorization: Bearer <jwt>
 - `PUT /journal/:id` (protected)
   - body: `{ "content": "Updated entry" }`
 - `DELETE /journal/:id` (protected)
-

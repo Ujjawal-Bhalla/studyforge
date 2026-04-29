@@ -8,9 +8,8 @@
 
 ## Pomodoro Components (`client/components/pomodoro`)
 
-- `PomodoroHistory.js`: fetches past sessions and displays duration history.
+- `PomodoroHistory.js`: fetches completed timer sessions and displays unified duration history.
 
 ## Journal Components (`client/components/journal`)
 
 - `JournalItem.js`: entry card with edit/save/cancel/delete behavior.
-

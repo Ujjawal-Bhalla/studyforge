@@ -8,9 +8,7 @@ import { getToken, getUser } from "@/lib/auth";
 export default function DashboardLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
-
   const [mounted, setMounted] = useState(false);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const token = getToken();
@@ -20,10 +18,14 @@ export default function DashboardLayout({ children }) {
       return;
     }
 
-    const u = getUser();
-    setUser(u);
-    setMounted(true);
-  }, []);
+    const frame = requestAnimationFrame(() => {
+      setMounted(true);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [router]);
+
+  const user = mounted ? getUser() : null;
 
   const navLinks = [
     { href: "/dashboard", label: "Home" },
@@ -78,8 +80,7 @@ export default function DashboardLayout({ children }) {
               {pathname.split("/").pop()}
             </h1>
 
-            {/* User (hydration-safe) */}
-            {mounted && (
+            {/* User */}
   <div className="flex items-center gap-4 text-sm text-gray-600">
 
     {/* User */}
@@ -99,7 +100,6 @@ export default function DashboardLayout({ children }) {
     </button>
 
   </div>
-)}
           </header>
 
           {/* Page Content */}
